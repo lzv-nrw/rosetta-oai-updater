@@ -1,0 +1,84 @@
+# ==============================================================
+# Application Configuration Template
+# --------------------------------------------------------------
+# This file defines connection settings for Solr and Oracle,
+# as well as institution-specific workflows.
+#
+# Replace all placeholder values (<...>) with specific values before using this configuration in production.
+# ==============================================================
+
+
+# ==============================
+# SOLR CONFIGURATION
+# ==============================
+solr:
+  # Full Solr query endpoint (including the collection path)
+  url: http://<solr-host>:<port>/<collection-path>/select
+
+  # HTTP Authorization header (Basic Auth)
+  authHeader: Basic <base64-encoded-credentials>
+
+
+# ==============================
+# ORACLE DATABASE CONFIGURATION
+# ==============================
+oracle:
+  # JDBC connection string for the Oracle database
+  url: jdbc:oracle:thin:@<db-host>:<port>:<sid>
+
+  # Database username
+  user: <db-username>
+
+  # Database password
+  password: <db-password>
+
+
+# =======================================
+# INSTITUTION AND MATERIAL FLOWS SETTINGS
+# ALL CONFIGURATIONS SHOULD BE SPECIFIED AS CONFIGURED IN ROSETTA
+# =======================================
+institutions:
+  # First institution code
+  # The institution code must be the same as used in Rosetta
+  <institution-code-A>:
+    materialFlows:
+
+      # First material flow configuration
+      - name: <materialflow-name-A>
+        baseUrl: <oai-base-url>
+        metadataPrefix: <metadata-prefix>
+
+        # Sets are defined as a list
+        # If no information about sets is to be specified, an empty list must be passed as follows: 'sets: []'
+        sets: 
+          - <oai-set-name-A>
+          - <oai-set-name-B>
+
+        # Local path to the XSLT transformation file
+        xsltPath: <path-to-xslt-file>
+        
+        # Target directory where generated XML files will be stored
+        # Must be writable
+        resultPath: <path-to-result-directory>
+
+      # Second material flow configuration
+      - name: <materialflow-name-B>
+        baseUrl: <oai-base-url>
+        metadataPrefix: <metadata-prefix>
+        sets: []
+        xsltPath: <path-to-xslt-file>
+        resultPath: <path-to-result-directory>
+
+  # Second institution code
+  <institution-code-B>:
+    materialFlows:
+      - name: <materialflow-name-A>
+        baseUrl: <oai-base-url>
+        metadataPrefix: <metadata-prefix>
+        sets: 
+          - <oai-set-name-A>
+        xsltPath: <path-to-xslt-file>
+        resultPath: <path-to-result-directory>
+
+
+
