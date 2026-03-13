@@ -43,8 +43,10 @@ public class XMLTransformer {
 
 			// Set XSLT parameters
 			transformer.setParameter("IEPID", iepid);
-			transformer.setParameter("mid", mid);
-			transformer.setParameter("subType", subType);
+			if (mid != null) {
+				transformer.setParameter("mid", mid);
+				transformer.setParameter("subType", subType);
+			}
 
 			StringWriter resultWriter = new StringWriter();
 			StreamResult result = new StreamResult(resultWriter);
