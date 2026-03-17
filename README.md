@@ -69,11 +69,13 @@ oracle:
   url: jdbc:oracle:thin:@<db-host>:<port>:<sid>
   user: <db-username>
   password: <db-password>
+  schemaPrefix: <db-schemaPrefix>
 ```
 
 - url: JDBC connection string for the Oracle database.
 - user: Database username.
 - password: Database password.
+- schemaPrefix: Prefix of the database schema used in Oracle database, e.g., "V123" for the schema "V123_ABC00"
 
 ### 3. Institutions and material flows
 

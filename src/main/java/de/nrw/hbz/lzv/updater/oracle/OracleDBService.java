@@ -34,7 +34,7 @@ public class OracleDBService {
 	public String getCreationDate(String iepid) throws SQLException {
 		logger.info("Retrieving creationDate for IEPID {}", iepid);
 
-		String query = "SELECT HDE.CREATEDATE FROM V201_RPT00.HDECONTROL_VIEW HDE "
+		String query = "SELECT HDE.CREATEDATE FROM " + oracleConfig.getSchemaPrefix() + "_RPT00.HDECONTROL_VIEW HDE "
 				+ "WHERE HDE.OBJECTTYPE = 'INTELLECTUAL_ENTITY' AND HDE.LIFECYCLE = 'IN_PERMANENT_REPOSITORY' "
 				+ "AND HDE.PID = ? ORDER BY HDE.VERSION DESC FETCH FIRST 1 ROW ONLY";
 
@@ -57,9 +57,9 @@ public class OracleDBService {
 
 		logger.debug("Fetching MID and SUB_TYPE for IEPID {}", iepid);
 
-		String query = "SELECT h1.MID, h3.SUB_TYPE FROM V201_ROS00.HDEMETADATA h1 "
-				+ "INNER JOIN V201_ROS00.HDEPIDMID h2 ON h2.MID = h1.MID "
-				+ "INNER JOIN V201_ROS00.HDEMETADATAREGISTRY h3 ON h3.MDID = h1.MDID "
+		String query = "SELECT h1.MID, h3.SUB_TYPE FROM " + oracleConfig.getSchemaPrefix() + "_ROS00.HDEMETADATA h1 "
+				+ "INNER JOIN " + oracleConfig.getSchemaPrefix() + "_ROS00.HDEPIDMID h2 ON h2.MID = h1.MID "
+				+ "INNER JOIN " + oracleConfig.getSchemaPrefix() + "_ROS00.HDEMETADATAREGISTRY h3 ON h3.MDID = h1.MDID "
 				+ "WHERE h2.PID = ? AND (h1.MDID BETWEEN 61 AND 70 OR h1.MDID BETWEEN 73 AND 76) "
 				+ "AND h3.TYPE = 'source'";
 

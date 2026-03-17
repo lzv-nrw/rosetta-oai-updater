@@ -128,6 +128,7 @@ public class ConfigLoader {
 		private String url;
 		private String user;
 		private String password;
+		private String schemaPrefix;
 
 		/** @return The Oracle URL. */
 		public String getUrl() {
@@ -157,6 +158,16 @@ public class ConfigLoader {
 		/** Sets the password for Oracle database access. */
 		public void setPassword(String password) {
 			this.password = password;
+		}
+
+		/** @return The prefix of the database schema used in Oracle database. */
+		public String getSchemaPrefix() {
+			return schemaPrefix;
+		}
+
+		/** Sets the schemaPrefix for Oracle database access. */
+		public void setSchemaPrefix(String schemaPrefix) {
+			this.schemaPrefix = schemaPrefix;
 		}
 	}
 

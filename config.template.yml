@@ -32,6 +32,9 @@ oracle:
   # Database password
   password: <db-password>
 
+  # Prefix of the database schema, e.g., "V123" for the schema "V123_ABC00"
+  schemaPrefix: <db-schemaPrefix>
+
 
 # =======================================
 # INSTITUTION AND MATERIAL FLOWS SETTINGS
