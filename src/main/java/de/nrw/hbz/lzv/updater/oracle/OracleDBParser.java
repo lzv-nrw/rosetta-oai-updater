@@ -21,7 +21,7 @@ public class OracleDBParser {
 	public String parseCreationDate(ResultSet rs) throws SQLException {
 
 		if (rs.next()) {
-			return rs.getString("CREATEDATE");
+			return rs.getString("IEDATE");
 		}
 		return null;
 	}

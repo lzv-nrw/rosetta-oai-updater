@@ -175,7 +175,7 @@ public class RosettaUpdateService {
 			DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 			LocalDateTime ldt = LocalDateTime.parse(oracleService.getCreationDate(iepid), fmt);
 			String ieCreationDate = ldt.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
-
+			logger.info("OAI Record Date {}, IE Date: {}", oaiDate, ieCreationDate);
 			return LocalDate.parse(oaiDate).isAfter(LocalDate.parse(ieCreationDate));
 		} catch (Exception e) {
 			logger.warn("Date comparison failed for IEPID: {}", iepid, e);

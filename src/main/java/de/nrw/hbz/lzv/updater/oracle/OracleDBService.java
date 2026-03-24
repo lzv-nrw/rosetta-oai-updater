@@ -32,9 +32,10 @@ public class OracleDBService {
 	 * * @param iepid IEPID to lookup
 	 */
 	public String getCreationDate(String iepid) throws SQLException {
-		logger.info("Retrieving creationDate for IEPID {}", iepid);
+		logger.info("Retrieving date for IEPID {}", iepid);
 
-		String query = "SELECT HDE.CREATEDATE FROM " + oracleConfig.getSchemaPrefix() + "_RPT00.HDECONTROL_VIEW HDE "
+		String query = "SELECT CASE WHEN HDE.VERSION = 1 THEN HDE.CREATEDATE WHEN HDE.VERSION > 1 THEN HDE.MODIFICATIONDATE END AS IEDATE FROM "
+				+ oracleConfig.getSchemaPrefix() + "_RPT00.HDECONTROL_VIEW HDE "
 				+ "WHERE HDE.OBJECTTYPE = 'INTELLECTUAL_ENTITY' AND HDE.LIFECYCLE = 'IN_PERMANENT_REPOSITORY' "
 				+ "AND HDE.PID = ? ORDER BY HDE.VERSION DESC FETCH FIRST 1 ROW ONLY";
 
