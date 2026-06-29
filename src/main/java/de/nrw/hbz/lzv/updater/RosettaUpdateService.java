@@ -1,10 +1,12 @@
 package de.nrw.hbz.lzv.updater;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -147,7 +149,7 @@ public class RosettaUpdateService {
 			return;
 		}
 
-		if (iepid != null && shouldUpdate(entry.getValue(), iepid, oracleUrl, oracleUser, oraclePw)) {
+		if (iepid != null && shouldUpdate(entry.getValue(), iepid)) {
 			logger.info("IEPID {} needs to be updated", iepid);
 			updateIE(baseUrl, metadataPrefix, identifier, iepid, xsltPath, resultPath, oracleUrl, oracleUser, oraclePw);
 		} else {
@@ -158,29 +160,82 @@ public class RosettaUpdateService {
 	/**
 	 * Determines if an OAI record needs updating based on datestamp comparison.
 	 * 
-	 * @param oaiDateStr OAI datestamp string in ISO format (yyyy-MM-dd)
+	 * @param oaiDateStr OAI datestamp string in ISO_LOCAL_DATE "yyyy-MM-dd" or
+	 *                   ISO_INSTANT "yyyy-MM-ddTHH:mm:ssZ"
 	 * @param iepid      IEPID from Solr lookup
-	 * @param oracleUrl  Oracle connection URL
-	 * @param oracleUser Oracle username
-	 * @param oraclePw   Oracle password
 	 * @return true if OAI datestamp is newer than IE creation date
 	 */
-	private boolean shouldUpdate(String oaiDateStr, String iepid, String oracleUrl, String oracleUser,
-			String oraclePw) {
-		try {
-			ZonedDateTime zdt = ZonedDateTime.parse(oaiDateStr);
-			String oaiDate = zdt.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
+	private boolean shouldUpdate(String oaiDateStr, String iepid) {
 
-			// Convert IE creation Date from yyyy-MM-dd HH:mm:ss to yyyy-MM-dd
+		try {
+
+			String oaiDateformat = dateFormatCheck(oaiDateStr);
+
 			DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 			LocalDateTime ldt = LocalDateTime.parse(oracleService.getCreationDate(iepid), fmt);
-			String ieCreationDate = ldt.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
-			logger.info("OAI Record Date {}, IE Date: {}", oaiDate, ieCreationDate);
-			return LocalDate.parse(oaiDate).isAfter(LocalDate.parse(ieCreationDate));
+
+			switch (oaiDateformat) {
+
+			case "LOCAL_DATE": {
+				// Convert IE creation Date from yyyy-MM-dd HH:mm:ss to yyyy-MM-dd
+				LocalDate ieCreationDate = ldt.toLocalDate();
+				LocalDate oaiDate = LocalDate.parse(oaiDateStr);
+
+				logger.info("OAI Record Date {}, IE Date: {}", oaiDate, ieCreationDate);
+				return oaiDate.isAfter(ieCreationDate);
+			}
+			case "INSTANT": {
+				// Convert IE creation Date from yyyy-MM-dd HH:mm:ss to YYYY-MM-DDThh:mm:ssZ
+				Instant ieCreationDate = ldt.atOffset(ZoneOffset.UTC).toInstant();
+				Instant oaiDate = Instant.parse(oaiDateStr);
+
+				logger.info("OAI Record Date {}, IE Date: {}", oaiDate, ieCreationDate);
+				return oaiDate.isAfter(ieCreationDate);
+			}
+			default: {
+				logger.warn("Unsupported OAI date format '{}'. Date comparison failed for IEPID: {}", oaiDateStr,
+						iepid);
+				return false;
+			}
+			}
 		} catch (Exception e) {
 			logger.warn("Date comparison failed for IEPID: {}", iepid, e);
 			return false;
 		}
+	}
+
+	/**
+	 * Checks the format of a given date string and returns a corresponding format
+	 * label.
+	 *
+	 * The method attempts to parse the input string using two standard ISO formats:
+	 * - ISO_LOCAL_DATE ("yyyy-MM-dd") - ISO_INSTANT (yyyy-MM-ddTHH:mm:ssZ")
+	 *
+	 * If the input matches one of these formats, a string representing the format
+	 * is returned. If the input does not match any supported format, "unknown" is
+	 * returned.
+	 *
+	 * @param input the date string to be checked
+	 * @return "LOCAL_DATE" if the input matches ISO_LOCAL_DATE, "INSTANT" if it
+	 *         matches ISO_INSTANT, or "unknown" if no known format is detected
+	 */
+	public static String dateFormatCheck(String input) {
+
+		try {
+			// expect ISO_LOCAL_DATE YYYY-MM-DD
+			LocalDate.parse(input, DateTimeFormatter.ISO_LOCAL_DATE);
+			return "LOCAL_DATE";
+		} catch (DateTimeParseException ignored) {
+		}
+
+		try {
+			// expect ISO_INSTANT yyyy-MM-ddTHH:mm:ssZ
+			Instant.parse(input);
+			return "INSTANT";
+		} catch (DateTimeParseException ignored) {
+		}
+
+		return "unknown";
 	}
 
 	/**
